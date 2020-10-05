@@ -5,6 +5,9 @@ runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
+library(shiny)
+library(clinicalfd)
+library (tidyverse)
 library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
@@ -43,7 +46,8 @@ add <- function() {
 Modify the following code to limit the number of rows printed to 5:
 
 ```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
-mtcars
+adsl <- clinicalfd::adsl
+head(adsl)
 ```
 
 ```{r print-limit-hint}
@@ -69,6 +73,24 @@ quiz(
     answer("tools"),
     answer("stats"),
     answer("grid", correct = TRUE)
+  )
+)
+```
+
+```{r quiz2 }
+quiz(
+  question("How do read clinicalfd package into Rstudio?",
+    answer("Just type in Clinicalfd"),
+    answer("just type in clinicalfd"),
+    answer("Just type in install(clinicalfd) ", correct = TRUE),
+    answer("Do not type anything")
+  ),
+  
+  question("How to use ADSL dataset and usubjid ?",
+    answer("adsl <- clinicalfd::adsl ", correct = TRUE),
+    answer("ADSL"),
+    answer("clinicalfd.adsl"),
+    answer("select (clinical::adsl , usubjid) ", correct = TRUE)
   )
 )
 ```
