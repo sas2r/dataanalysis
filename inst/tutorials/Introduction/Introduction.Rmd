@@ -7,12 +7,12 @@ runtime: shiny_prerendered
 ```{r setup, include=FALSE}
 library(shiny)
 library(clinicalfd)
+
 library (tidyverse)
 library(learnr)
+library(gt)
 knitr::opts_chunk$set(echo = FALSE)
 ```
-
-
 ## Topic 1
 
 ### Exercise 
@@ -56,26 +56,7 @@ head(adsl)
 
 *You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
 
-Some questions to verify that you understand the purposes of various base and recommended R packages:
-
-```{r quiz}
-quiz(
-  question("Which package contains functions for installing other R packages?",
-    answer("base"),
-    answer("tools"),
-    answer("utils", correct = TRUE),
-    answer("codetools")
-  ),
-  question("Which of the R packages listed below are used to create plots?",
-    answer("lattice", correct = TRUE),
-    answer("tools"),
-    answer("stats"),
-    answer("grid", correct = TRUE)
-  )
-)
-```
-
-```{r quiz2 }
+```{r quiz }
 quiz(
   question("How do read clinicalfd package into Rstudio?",
     answer("Just type in Clinicalfd"),
@@ -92,3 +73,56 @@ quiz(
   )
 )
 ```
+
+## GT introduction
+
+- All **gt** tables begin with a call to `gt()`, where we would supply     the input data table (data frame or tibble) and some basic options for   creating a stub (`rowname_col`) and row groups (`groupname_col`).
+- We can also introduce a grouped tibble (via **dplyr**’s `group_by()`)    for more precise divisions of rows into row groups. 
+- The `gt_preview()` function is great for getting a nicely-formatted preview of a data table (defaulting to the first 5 rows and the last row).
+- Finally, sometimes we want to export the table to some format. It could be HTML, it could be RTF... whichever you go with, you can use the `gtsave()` function.
+
+### Functions in this module 
+- 'gt()'
+- 'gt_preview()'
+- 'gt_save()'
+ 
+ 
+## `gt()`: Create a **gt** table object
+
+``` r
+gt(
+  data,
+  rowname_col = "rowname",
+  groupname_col = dplyr::group_vars(data),
+  rownames_to_stub = FALSE,
+  auto_align = TRUE,
+  id = NULL,
+  row_group.sep = getOption("gt.row_group.sep", " - ")
+)
+```
+### Get Help using ?gt
+
+- The gt() function creates gt() table object when provided with table data.
+- Using this function is the first step in typical **gt** workflow. 
+- Once we have the **gt** table object , we can perform styling transformations rendering to a display table of various formats
+
+##### EXAMPLES
+
+The **gt** package contains a few datasets:
+
+- `countrypops` - Yearly populations of countries from 1960 to 2017
+- `sza` - Twice hourly solar zenith angles by month & latitude
+- `gtcars` - Deluxe automobiles from the 2014-2017 period
+- `sp500` - Daily S&P 500 Index data from 1950 to 2015
+- `pizzaplace` - A year of pizza sales from a pizza place
+- `exibble` - A toy example tibble for testing with **gt**: `exibble`
+
+Let's print out `exibble` and see what it looks like:
+
+## Now let's introduce dataset to gt()
+
+```{r exibble , echo = TRUE}
+ exibble %>% gt(rowname_col = "row")
+```
+
+
