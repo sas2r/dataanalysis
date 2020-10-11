@@ -50,6 +50,21 @@ adsl <- clinicalfd::adsl
 head(adsl)
 ```
 
+```{r}
+# slice_sample() randomly selects rows.
+adsl02 <- adsl %>% 
+           slice_sample( n = 30) %>% 
+            select ( subjid , trt01a , age , sex ) 
+ 
+
+```
+
+
+```{r  adsl , echo = TRUE}
+ adsl02  %>% gt(rowname_col = "trt01a")
+```
+
+
  
 
 ### Quiz
@@ -121,8 +136,279 @@ Let's print out `exibble` and see what it looks like:
 
 ## Now let's introduce dataset to gt()
 
+```{r exi , echo= TRUE}
+exibble
+```
+
+- The above is basic layout , containing the column labels and body cells
+- Numbers are minimally formatted 
+- We can modify the layout little bit in the first step and create stub. A
+  is a special column that contains row labels/names. 
+
+- To do this we supply the name of the column we'd like to use as the stub
+to *row_column* argument .Conveniently we have the **row** column in exibble that's good purpose of this 
+
+
 ```{r exibble , echo = TRUE}
  exibble %>% gt(rowname_col = "row")
 ```
+## Gt() tab_stubhead()
+Great! A bit on the stub. It doesn’t have a column label above it because it’s technically not a column (it’s the… stub). We can still put a label above it though! That’s with the tab_stubhead() function (in the next module).
+
+We can do some more structuring. Sets of rows can be grouped, showing a row group label above each group. We can do this by using a column containing categorical values (usually grouping labels). Conveniently again, exibble has the "group" column. Let’s use that in the rowname_col argument of gt() and see what it looks like:
+
+```{r}
+exibble %>% gt(rowname_col = "row" , groupname_col = "group")
+```
+
+Even if rows are in a weird order, gt will put the rows in the correct group (but still respect the order of rows).
+
+```{r}
+exibble %>%  dplyr::sample_n( size= 8) %>%  gt(rowname_col = "row" 
+                                               , groupname_col = "group")
+```
+
+```{r}
+mtcars
+```
+### rownames_to_stub get lines under each row and prints in a nice format
+```{r}
+ mtcars %>%   gt(rownames_to_stub = TRUE)
+```
+### using *dplyr group_by * -ing . if you have a grouped tibble , you can pass that into gt() and it will know what to do 
+
+```{r}
+# what this does is that use dplyr group_by  to group the rows and print by group 
+exibble %>%  dplyr:: group_by(group) %>%  gt(rowname_col = "row")
+
+# very similar to 
+
+adsl02 %>% dplyr:: group_by(sex , age )  %>%  gt(rowname_col = 'trt01' )
+```
+
+### This also works when they are multiple columns grpuped .Use **row_group.sep** to specify separator between the labels 
+
+```{r}
+pizzaplace %>% 
+  dplyr:: filter (type %in% c ("supreme" ,"veggie") ) %>% 
+  dplyr:: group_by( type , size) %>% 
+  dplyr:: slice_head( n= 3 ) %>% 
+  gt(row_group.sep =  "  // ")
+
+# NOTE dplyr:: can be used with every dplyr function or just once
+#gt(row_group.sep - seprates rows after grouping them ) printing under the subjid
+adsl02 %>%  
+  dplyr:: filter (age > 40 ) %>% 
+  group_by (age , sex ) %>% 
+  slice_head( n = 5 ) %>% 
+  gt (row_group.sep =  " <------>"  )
+
+#Note row_group.sep does not work with , rowname_col = "Age & Sex" and , groupname_col = "Group"
+  
+```
+
+### *gt_previw() preview the a gt table object *
+-Sometimes you may want to see just a small portion of your input data. 
+We can use gt_preview() in place of gt() to get the first x rows of data and the last y rows of data
+(which can be set by the top_n and bottom_n arguments).
+
+-It's not advised to use additional gt functions to further modify the output of gt_preview().
+-Furthermore, you cannot pass a gt object to gt_preview().
+
+-           gt_preview(data,
+            top_n = 5,
+            bottom_n = 1,
+            incl_rownums = TRUE)
+  
+
+```{r}
+#names(adsl)
+
+adsl  %>%  
+  dplyr:: select ( subjid , age , sex , ethnic , arm ) %>% 
+  gt_preview(  bottom_n = 3 )
+  
+
+# TO exclude the line numbers
+adsl  %>%  
+  dplyr:: select ( subjid , age , sex , ethnic , arm ) %>% 
+  gt_preview( top_n = 3 , bottom_n = 3  , incl_rownums = FALSE)
+```
+
+##  gtsave() : **Save a gt table to a file**
+
+```{r}
+#?gtsave()
+getwd()
+gt_tbl <- 
+  exibble %>% 
+   gt(rowname_col = "row" , 
+      groupname_col =  "group")
+gt_tbl 
+```
+
+
+###  Use **'devtools::install_github("rstudio/gt") '** while installing this package lot of dependencies are involved , if the rlnguage() fails to install try installing tidyverse package then see if it works . If that is not working try deleting .000lock file int the package folder  **'C:\Users\tatav\OneDrive\Documents\R\win-library\3.6'** 
+### Installation takes lot of time ( atleast 30 min )
+
+
+```{r}
+ gt_tbl %>%  gtsave ("tab_r.rtf")
+
+```
+
+
+```{r}
+tab_rtf <- gtcars %>% 
+           dplyr:: select (mfr , model) %>% 
+           dplyr:: slice (1:2) %>% 
+           gt() %>% 
+           tab_header (
+             title = md ("Data listing from **gtcars** "), 
+             subtitle = md ("gtcars is an R dataset")
+             )%>% 
+            as_rtf()
+           
+    
+```
+
+
+## Adding or Modifying Parts of a Table
+
+A **gt** table can contain a few useful parts for conveying additional information. These include a header (with a titles and subtitle), a footer (with footnotes and source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can modify the look of table parts more generally with `tab_options()` and perform styling on targeted table locations with `tab_style()`.
+
+------
+
+Functions in this module
+
+- `tab_stubhead()`
+- `tab_spanner()`
+- `tab_header()`
+- `tab_source_note()`
+- `tab_footnote()`
+- `tab_style()`
+- `tab_options()`
+
+ 
+
+Helpers for selecting columns:
+
+- `vars()`
+- `contains()`
+- `matches()`
+- `starts_with()`
+- `ends_with()`
+- `everything()`
+ 
+
+Helpers for transforming text:
+
+- `md()`
+- `html()`
+ 
+
+Helpers for targeting locations:
+
+- `cells_title()`
+- `cells_stubhead()`
+- `cells_column_spanners()`
+- `cells_column_labels()`
+- `cells_row_groups()`
+- `cells_stub()`
+- `cells_body()`
+- `cells_summary()`
+- `cells_grand_summary()`
+
+
+Helpers for defining styles:
+
+- `cell_text()`
+- `cell_fill()`
+- `cell_borders()`
+
+------
+
+
+
+##  `tab_stubhead()`: Add label text to the stubhead
+
+``` r
+tab_stubhead(
+  data,
+  label
+)
+```
+ 
+Add a label to the stubhead of a **gt** table. The stubhead is the lone element that is positioned left of the column labels, and above the stub. We have the flexibility to use Markdown formatting for the stubhead label with `md()`. Furthermore, if the table is intended for HTML output, we can use HTML for the stubhead label (with `html()`).
+
+##### EXAMPLE
+
+Use `gtcars` to create a **gt** table. Add a stubhead label to describe what is in the stub.
+
+```{r}
+#gtcars
+```
+
+
+```{r }
+gtcars %>%
+  dplyr::select(model, year, hp, trq) %>%
+  dplyr::slice(1:5) %>%
+  gt(rowname_col = "model") %>%
+  tab_stubhead(label = "car")
+```
+
+
+### `tab_spanner()`: Add a spanner column label
+
+``` r
+tab_spanner(
+  data,
+  label,
+  columns,
+  gather = TRUE
+)
+```
+
+Set a spanner column label by mapping it to columns already in the table. This label is placed above one or more column labels, spanning the width of those columns and column labels.
+
+With `columns` we can use column names in double quotes (`"<column>"`), in `vars()` (`vars(<column>)`), or, we can use the following **tidyselect** expressions:
+
+- `contains()`: contains a literal string
+- `matches()`: matches a regular expression
+- `starts_with()`: starts with a prefix
+- `ends_with()`: ends with a suffix
+- `everything()`: selects all columns
+
+##### EXAMPLE
+
+Let's use the `gtcars` table, but cut it down to size first:
+
+```{r}
+gtcars_small <- gtcars %>%  
+        dplyr:: select ( model, year , bdy_style, hp , hp_rpm , trq ,
+                         trq_rpm , mpg_c , mpg_h , msrp ) %>% 
+  dplyr:: slice (1: 8 )
+
+gtcars_small
+```
+
+### Use *"gtcars"* to create *"gt"* table ; Group several columns related to car performance under a spanner column with the label *'performance'* 
+
+- *'tab_spanner'* would hlep us create listing style template where create a line under relating treatment arms . 
+ - *'label'* is the label used for those columns 
+ - *'vars'* is the list of the variables 
+
+```{r}
+
+gtcars_small %>%  
+  gt( rowname_col = "model" )  %>% 
+  tab_spanner (
+  label = "Performance" , 
+  column = vars(hp , hp_rpm , trq , trq_rpm , mpg_c , mpg_h)
+                    )  
+                  
+```
+
 
 
